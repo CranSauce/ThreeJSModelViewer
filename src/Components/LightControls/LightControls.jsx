@@ -18,7 +18,9 @@ const LightControls = ({
       </p>
       <div className="space-y-2 w-full">
         <div className="space-y-1">
-          <label className="block text-sm text-center">X Position: {lightX.toFixed(2)}</label>
+          <label className="block text-sm text-center">
+            X Position: {lightX.toFixed(2)}
+          </label>
           <input
             type="range"
             min="-10"
@@ -30,7 +32,9 @@ const LightControls = ({
           />
         </div>
         <div className="space-y-1">
-          <label className="block text-sm text-center">Y Position: {lightY.toFixed(2)}</label>
+          <label className="block text-sm text-center">
+            Y Position: {lightY.toFixed(2)}
+          </label>
           <input
             type="range"
             min="-10"
@@ -42,7 +46,9 @@ const LightControls = ({
           />
         </div>
         <div className="space-y-1">
-          <label className="block text-sm text-center">Z Position: {lightZ.toFixed(2)}</label>
+          <label className="block text-sm text-center">
+            Z Position: {lightZ.toFixed(2)}
+          </label>
           <input
             type="range"
             min="-10"
@@ -54,11 +60,13 @@ const LightControls = ({
           />
         </div>
         <div className="space-y-1">
-          <label className="block text-sm text-center">Intensity: {lightIntensity.toFixed(2)}</label>
+          <label className="block text-sm text-center">
+            Intensity: {lightIntensity.toFixed(2)}
+          </label>
           <input
             type="range"
             min="0"
-            max="8"
+            max="5"
             step="0.1"
             value={lightIntensity}
             onChange={(e) => setLightIntensity(Number(e.target.value))}

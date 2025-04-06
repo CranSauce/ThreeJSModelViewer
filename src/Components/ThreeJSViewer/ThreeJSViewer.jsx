@@ -20,9 +20,9 @@ const ThreeJSViewer = () => {
   const [errorMessage, setErrorMessage] = useState('');
 
   // Light state
-  const [lightX, setLightX] = useState(5);
-  const [lightY, setLightY] = useState(10);
-  const [lightZ, setLightZ] = useState(7);
+  const [lightX, setLightX] = useState(3);
+  const [lightY, setLightY] = useState(3.5);
+  const [lightZ, setLightZ] = useState(1);
   const [lightIntensity, setLightIntensity] = useState(1);
   const [isDraggingLight, setIsDraggingLight] = useState(false);
 
@@ -46,7 +46,6 @@ const ThreeJSViewer = () => {
     if (light) {
       light.position.set(lightX, lightY, lightZ);
       light.intensity = lightIntensity;
-      // Update light sphere position
       const lightSphere = scene.getObjectByName('lightSphere');
       if (lightSphere) {
         lightSphere.position.copy(light.position);
@@ -94,7 +93,6 @@ const ThreeJSViewer = () => {
       } else {
         updateMaterial(existingMesh.material);
       }
-      // Also update child meshes (for GLTF models)
       existingMesh.traverse((child) => {
         if (child instanceof THREE.Mesh) {
           if (Array.isArray(child.material)) {
@@ -142,7 +140,6 @@ const ThreeJSViewer = () => {
     setModelLoading(true);
     setErrorMessage('');
 
-    // Clean up existing model if any
     const existingMesh = scene.getObjectByName('customMesh');
     if (existingMesh) {
       removeObjectHelpers(scene);
@@ -199,65 +196,67 @@ const ThreeJSViewer = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-4">
-      {/* Three.js canvas container */}
-      <div ref={mountRef} className="mx-auto w-full h-[500px] bg-gray-800 rounded-lg relative">
-        {modelLoading && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 text-white">
-            Loading model...
+    <div className="min-h-screen bg-gray-100 overflow-auto">
+      <div className="container mx-auto px-4 py-8 flex flex-col space-y-6">
+        <div className="mx-auto w-full max-w-4xl rounded-xl shadow-lg overflow-hidden bg-gray-800 relative" style={{ height: '600px' }}>
+          <div ref={mountRef} className="w-full h-full relative">
+            {modelLoading && (
+              <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 text-white">
+                Loading model...
+              </div>
+            )}
+          </div>
+          <div className="absolute bottom-2 left-2 text-sm text-white/50 font-light pointer-events-none select-none">
+            Created by Andrew Thomas
+          </div>
+        </div>
+        {errorMessage && (
+          <div className="mx-auto w-full max-w-4xl bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded">
+            {errorMessage}
           </div>
         )}
-        <div className="absolute bottom-2 left-2 text-sm text-white/50 font-light pointer-events-none select-none">
-          Created by Andrew Thomas
+        <div className="mx-auto w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-4">
+          <ObjectControls
+            wireframe={wireframe}
+            setWireframe={setWireframe}
+            objectType={objectType}
+            setObjectType={setObjectType}
+            showBounds={showBounds}
+            setShowBounds={setShowBounds}
+            showOrigin={showOrigin}
+            setShowOrigin={setShowOrigin}
+            showAxes={showAxes}
+            setShowAxes={setShowAxes}
+            showHelper={showHelper}
+            setShowHelper={setShowHelper}
+            scene={scene}
+          />
+          <LightControls
+            lightX={lightX}
+            setLightX={setLightX}
+            lightY={lightY}
+            setLightY={setLightY}
+            lightZ={lightZ}
+            setLightZ={setLightZ}
+            lightIntensity={lightIntensity}
+            setLightIntensity={setLightIntensity}
+          />
         </div>
-      </div>
-      {errorMessage && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded">
-          {errorMessage}
+        <div className="mx-auto w-full max-w-4xl">
+          <ModelUploader handleFileUpload={handleFileUpload} />
         </div>
-      )}
-      {/* UI Controls */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <ObjectControls
-          wireframe={wireframe}
-          setWireframe={setWireframe}
-          objectType={objectType}
-          setObjectType={setObjectType}
-          showBounds={showBounds}
-          setShowBounds={setShowBounds}
-          showOrigin={showOrigin}
-          setShowOrigin={setShowOrigin}
-          showAxes={showAxes}
-          setShowAxes={setShowAxes}
-          showHelper={showHelper}
-          setShowHelper={setShowHelper}
-          scene={scene}
-        />
-        <LightControls
-          lightX={lightX}
-          setLightX={setLightX}
-          lightY={lightY}
-          setLightY={setLightY}
-          lightZ={lightZ}
-          setLightZ={setLightZ}
-          lightIntensity={lightIntensity}
-          setLightIntensity={setLightIntensity}
-        />
-      </div>
-      <ModelUploader handleFileUpload={handleFileUpload} />
-      <div className="text-sm bg-gray-100 p-3 rounded">
-        <p className="font-medium">Instructions:</p>
-        <ul className="list-disc pl-5 mt-1 space-y-1">
-          <li>Click and drag to rotate the object</li>
-          <li>Scroll to zoom in/out</li>
-          <li>Click and drag the light helper (yellow sphere) to move the light</li>
-          <li>Upload your own 3D models in .gltf, .glb or .obj format</li>
-        </ul>
+        <div className="mx-auto w-full max-w-4xl text-sm bg-white p-3 rounded shadow">
+          <p className="font-medium">Instructions:</p>
+          <ul className="list-disc pl-5 mt-1 space-y-1">
+            <li>Click and drag to rotate the object</li>
+            <li>Scroll to zoom in/out</li>
+            <li>Click and drag the light helper (yellow sphere) to move the light</li>
+            <li>Upload your own 3D models in .gltf, .glb or .obj format</li>
+          </ul>
+        </div>
       </div>
     </div>
   );
 };
 
 export default ThreeJSViewer;
-
-
