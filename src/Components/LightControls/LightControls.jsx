@@ -1,4 +1,3 @@
-// src/components/LightControls.jsx
 import React from 'react';
 
 const LightControls = ({
@@ -12,14 +11,14 @@ const LightControls = ({
   setLightIntensity,
 }) => {
   return (
-    <div className="space-y-3">
+    <div className="space-y-3 flex flex-col items-center">
       <h3 className="text-lg font-medium">Light Controls</h3>
-      <p className="text-xs">
+      <p className="text-xs text-center">
         Drag the light helper directly in the scene or use sliders below
       </p>
-      <div className="space-y-2">
+      <div className="space-y-2 w-full">
         <div className="space-y-1">
-          <label className="block text-sm">X Position: {lightX.toFixed(2)}</label>
+          <label className="block text-sm text-center">X Position: {lightX.toFixed(2)}</label>
           <input
             type="range"
             min="-10"
@@ -31,7 +30,7 @@ const LightControls = ({
           />
         </div>
         <div className="space-y-1">
-          <label className="block text-sm">Y Position: {lightY.toFixed(2)}</label>
+          <label className="block text-sm text-center">Y Position: {lightY.toFixed(2)}</label>
           <input
             type="range"
             min="-10"
@@ -43,7 +42,7 @@ const LightControls = ({
           />
         </div>
         <div className="space-y-1">
-          <label className="block text-sm">Z Position: {lightZ.toFixed(2)}</label>
+          <label className="block text-sm text-center">Z Position: {lightZ.toFixed(2)}</label>
           <input
             type="range"
             min="-10"
@@ -55,11 +54,11 @@ const LightControls = ({
           />
         </div>
         <div className="space-y-1">
-          <label className="block text-sm">Intensity: {lightIntensity.toFixed(2)}</label>
+          <label className="block text-sm text-center">Intensity: {lightIntensity.toFixed(2)}</label>
           <input
             type="range"
             min="0"
-            max="5"
+            max="8"
             step="0.1"
             value={lightIntensity}
             onChange={(e) => setLightIntensity(Number(e.target.value))}

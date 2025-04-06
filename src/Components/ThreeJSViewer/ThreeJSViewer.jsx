@@ -1,4 +1,3 @@
-// src/components/ThreeJSViewer.jsx
 import React, { useRef, useState, useEffect } from 'react';
 import * as THREE from 'three';
 import useThreeScene from '../../hooks/useThreeScene';
@@ -56,7 +55,7 @@ const ThreeJSViewer = () => {
     }
   }, [light, lightX, lightY, lightZ, lightIntensity, lightHelper, scene]);
 
-  // Use drag hooks (they will attach events only once renderer is ready)
+  // Attach drag hooks (they attach events once renderer is ready)
   useLightDrag(
     renderer,
     camera,
@@ -79,7 +78,7 @@ const ThreeJSViewer = () => {
     }
   }, [scene, objectType]);
 
-  // Update wireframe property on the existing mesh when wireframe changes
+  // (B) Update wireframe property on the existing mesh when wireframe changes
   useEffect(() => {
     if (!scene) return;
     const existingMesh = scene.getObjectByName('customMesh');
@@ -87,7 +86,7 @@ const ThreeJSViewer = () => {
       const updateMaterial = (material) => {
         if (!material) return;
         material.wireframe = wireframe;
-        material.needsUpdate = true; // Force material update
+        material.needsUpdate = true;
       };
 
       if (Array.isArray(existingMesh.material)) {
@@ -95,8 +94,7 @@ const ThreeJSViewer = () => {
       } else {
         updateMaterial(existingMesh.material);
       }
-
-      // Handle child meshes (for GLTF models)
+      // Also update child meshes (for GLTF models)
       existingMesh.traverse((child) => {
         if (child instanceof THREE.Mesh) {
           if (Array.isArray(child.material)) {
@@ -141,7 +139,6 @@ const ThreeJSViewer = () => {
       setErrorMessage('Scene not ready');
       return;
     }
-
     setModelLoading(true);
     setErrorMessage('');
 
@@ -153,7 +150,7 @@ const ThreeJSViewer = () => {
       if (existingMesh.geometry) existingMesh.geometry.dispose();
       if (existingMesh.material) {
         if (Array.isArray(existingMesh.material)) {
-          existingMesh.material.forEach(m => m.dispose());
+          existingMesh.material.forEach((m) => m.dispose());
         } else {
           existingMesh.material.dispose();
         }
@@ -170,7 +167,6 @@ const ThreeJSViewer = () => {
       };
 
       if (fileName.endsWith('.obj')) {
-        // For OBJ files, buffer is text
         loadOBJModel(
           buffer,
           scene,
@@ -182,7 +178,6 @@ const ThreeJSViewer = () => {
           onSuccess
         );
       } else if (fileName.endsWith('.gltf') || fileName.endsWith('.glb')) {
-        // For GLTF/GLB files, buffer is ArrayBuffer
         loadGLTFModel(
           buffer,
           scene,
@@ -204,9 +199,9 @@ const ThreeJSViewer = () => {
   };
 
   return (
-    <div className="flex flex-col w-full max-w-2xl space-y-4">
+    <div className="container mx-auto px-4 py-4">
       {/* Three.js canvas container */}
-      <div ref={mountRef} className="w-full h-96 bg-gray-800 rounded-lg relative">
+      <div ref={mountRef} className="mx-auto w-full h-[500px] bg-gray-800 rounded-lg relative">
         {modelLoading && (
           <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 text-white">
             Loading model...

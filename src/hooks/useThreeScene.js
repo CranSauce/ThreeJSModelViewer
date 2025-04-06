@@ -60,7 +60,7 @@ const useThreeScene = (mountRef, initialSettings = {}) => {
   }
   // Add ambient light and grid helper once
   if (!sceneRef.current.getObjectByName('ambientLight')) {
-    const ambientLight = new THREE.AmbientLight(0x404040, 1);
+    const ambientLight = new THREE.AmbientLight(0x808080, 1);
     ambientLight.name = 'ambientLight';
     sceneRef.current.add(ambientLight);
   }
