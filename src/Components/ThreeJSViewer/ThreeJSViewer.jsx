@@ -248,9 +248,9 @@ const ThreeJSViewer = () => {
         <div className="mx-auto w-full max-w-4xl text-sm bg-white p-3 rounded shadow">
           <p className="font-medium">Instructions:</p>
           <ul className="list-disc pl-5 mt-1 space-y-1">
-            <li>Click and drag to rotate the object</li>
+            <li>Click and drag to rotate the camera</li>
             <li>Scroll to zoom in/out</li>
-            <li>Click and drag the light helper (yellow sphere) to move the light</li>
+            <li>Click and drag the light helper (white sphere) to move the light</li>
             <li>Upload your own 3D models in .gltf, .glb or .obj format</li>
           </ul>
         </div>
