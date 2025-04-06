@@ -212,6 +212,9 @@ const ThreeJSViewer = () => {
             Loading model...
           </div>
         )}
+        <div className="absolute bottom-2 left-2 text-sm text-white/50 font-light pointer-events-none select-none">
+          Created by Andrew Thomas
+        </div>
       </div>
       {errorMessage && (
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded">
