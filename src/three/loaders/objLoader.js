@@ -2,7 +2,7 @@
 import * as THREE from 'three';
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader';
 
-export const loadOBJModel = (buffer, scene, wireframe, onError, onSuccess = null) => {
+export const loadOBJModel = (buffer, scene, wireframe, smoothing, onError, onSuccess = null) => {
   console.log('[OBJLoader] Starting OBJ load...');
   if (!buffer || buffer.length === 0) {
     const error = '[OBJLoader] Buffer is empty';
@@ -29,12 +29,14 @@ export const loadOBJModel = (buffer, scene, wireframe, onError, onSuccess = null
     obj.traverse((child) => {
       if (child instanceof THREE.Mesh) {
         child.material = new THREE.MeshStandardMaterial({
-          color: 0x808080,
+          color: 0xF5F5DC, // Cream color
           wireframe: wireframe,
-          roughness: 0.5,
-          metalness: 0.1,
+          roughness: 0.7, // Increased for softer highlights
+          metalness: 0.0, // Set to 0 for non-metallic look
           side: THREE.DoubleSide,
-          flatShading: true,
+          // Use flat shading if smoothing is false; otherwise smooth shading
+          flatShading: smoothing,
+          envMapIntensity: 0.2, // Added subtle environment reflection
         });
         child.castShadow = true;
         child.receiveShadow = true;
@@ -56,7 +58,9 @@ export const loadOBJModel = (buffer, scene, wireframe, onError, onSuccess = null
             }
             child.geometry.setIndex(indices);
           }
-          child.geometry.computeVertexNormals();
+          if (smoothing) {
+            child.geometry.computeVertexNormals();
+          }
           child.geometry.computeBoundingBox();
         }
       }
@@ -94,6 +98,8 @@ export const loadOBJModel = (buffer, scene, wireframe, onError, onSuccess = null
     if (onSuccess) onSuccess();
   } catch (error) {
     console.error('[OBJLoader] Error loading OBJ:', error);
-    if (onError) onError(`Error loading OBJ: ${error.message}`);
+    if (onError) {
+      onError(`Error loading OBJ: ${error.message}`);
+    }
   }
 };

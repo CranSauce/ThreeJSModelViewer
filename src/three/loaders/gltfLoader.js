@@ -2,7 +2,7 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 
-export const loadGLTFModel = (buffer, scene, wireframe, onError, onSuccess = null) => {
+export const loadGLTFModel = (buffer, scene, wireframe, smoothing, onError, onSuccess = null) => {
   console.log('[GLTFLoader] Starting GLTF/GLB load...');
   const loader = new GLTFLoader();
 
@@ -16,31 +16,33 @@ export const loadGLTFModel = (buffer, scene, wireframe, onError, onSuccess = nul
   loader.parse(buffer, '', (gltf) => {
     console.log('[GLTFLoader] GLTF parsed successfully');
     const model = gltf.scene;
-    if (!model) {
-      console.error('[GLTFLoader] No scene found in GLTF');
-      if (onError) onError('No scene found in GLTF');
-      return;
+    
+    // Apply smoothing if enabled
+    if (smoothing) {
+      model.traverse((child) => {
+        if (child instanceof THREE.Mesh && child.geometry) {
+          child.geometry.computeVertexNormals();
+        }
+      });
     }
 
-    // Apply material to all meshes
+    // Apply wireframe setting to all materials
     model.traverse((child) => {
       if (child instanceof THREE.Mesh) {
-        child.material = new THREE.MeshStandardMaterial({
-          color: 0x00ff00,
-          wireframe: wireframe,
-        });
-        child.castShadow = true;
-        child.receiveShadow = true;
+        if (Array.isArray(child.material)) {
+          child.material.forEach(m => m.wireframe = wireframe);
+        } else {
+          child.material.wireframe = wireframe;
+        }
       }
     });
 
-    // Log the bounding box before transformation
+    // Center and scale the model
     const box = new THREE.Box3().setFromObject(model);
-    console.log('[GLTFLoader] Model bounding box before centering:', box);
-
-    // Center and scale model
-    const center = box.getCenter(new THREE.Vector3());
     const size = box.getSize(new THREE.Vector3());
+    const center = box.getCenter(new THREE.Vector3());
+    model.position.sub(center);
+    
     const maxDim = Math.max(size.x, size.y, size.z);
     const scale = 3 / maxDim;
     model.scale.set(scale, scale, scale);

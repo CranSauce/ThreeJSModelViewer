@@ -6,6 +6,7 @@ import useObjectDrag from '../../hooks/useObjectDrag';
 import ObjectControls from '../ObjectControls/ObjectControls';
 import LightControls from '../LightControls/LightControls';
 import ModelUploader from '../ModelUploader/ModelUploader';
+import ModelControls from '../ModelControls/ModelControls';
 import { createObject, addObjectHelpers, removeObjectHelpers } from '../../three/helpers';
 import { loadGLTFModel } from '../../three/loaders/gltfLoader';
 import { loadOBJModel } from '../../three/loaders/objLoader';
@@ -15,6 +16,8 @@ const ThreeJSViewer = () => {
 
   // UI state
   const [wireframe, setWireframe] = useState(false);
+  const [smoothing, setSmoothing] = useState(false);
+  const [smoothingIntensity, setSmoothingIntensity] = useState(5); // Default to medium intensity
   const [objectType, setObjectType] = useState('cube');
   const [modelLoading, setModelLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -53,6 +56,18 @@ const ThreeJSViewer = () => {
       if (lightHelper) lightHelper.update();
     }
   }, [light, lightX, lightY, lightZ, lightIntensity, lightHelper, scene]);
+
+  // Update light visibility
+  useEffect(() => {
+    if (light) {
+      light.visible = showHelper;
+      light.intensity = showHelper ? lightIntensity : 0;
+      
+      // Also hide the light helper sphere
+      const lightSphere = scene.getObjectByName('lightSphere');
+      if (lightSphere) lightSphere.visible = showHelper;
+    }
+  }, [light, showHelper, lightIntensity, scene]);
 
   // Attach drag hooks (they attach events once renderer is ready)
   useLightDrag(
@@ -105,15 +120,6 @@ const ThreeJSViewer = () => {
     }
   }, [wireframe, scene]);
 
-  // Update light helper "visibility" via opacity (so it remains interactive)
-  useEffect(() => {
-    if (lightHelper && lightHelper.material) {
-      lightHelper.material.opacity = showHelper ? 1 : 0;
-      lightHelper.material.transparent = true;
-      lightHelper.update();
-    }
-  }, [lightHelper, showHelper]);
-
   // Update object helpers based on helper state
   useEffect(() => {
     if (scene) {
@@ -130,6 +136,44 @@ const ThreeJSViewer = () => {
       if (axesHelper) axesHelper.visible = showAxes;
     }
   }, [scene, showBounds, showOrigin, showAxes]);
+
+  // Handle smoothing changes
+  useEffect(() => {
+    if (!scene) return;
+    
+    const mesh = scene.getObjectByName('customMesh');
+    if (!mesh) return;
+    
+    mesh.traverse((child) => {
+      if (child instanceof THREE.Mesh && child.geometry) {
+        if (smoothing) {
+          // First compute smooth normals
+          child.geometry.computeVertexNormals();
+          
+          // Apply more aggressive smoothing based on intensity
+          const normals = child.geometry.attributes.normal;
+          const strength = smoothingIntensity / 2.5; // More aggressive range (0-4)
+          
+          for (let i = 0; i < normals.count; i++) {
+            const x = normals.getX(i) * (1 + strength);
+            const y = normals.getY(i) * (1 + strength);
+            const z = normals.getZ(i) * (1 + strength);
+            const len = Math.sqrt(x*x + y*y + z*z);
+            normals.setXYZ(i, x/len, y/len, z/len);
+          }
+          normals.needsUpdate = true;
+        } else {
+          // Force flat shading by resetting geometry
+          const originalGeometry = child.geometry;
+          const newGeometry = originalGeometry.clone();
+          newGeometry.computeVertexNormals();
+          child.geometry.dispose();
+          child.geometry = newGeometry;
+          child.material.flatShading = true;
+        }
+      }
+    });
+  }, [smoothing, smoothingIntensity, scene]);
 
   // File upload handling
   const handleFileUpload = (buffer, fileName) => {
@@ -168,6 +212,7 @@ const ThreeJSViewer = () => {
           buffer,
           scene,
           wireframe,
+          smoothing,
           (error) => {
             setModelLoading(false);
             setErrorMessage(`Error loading OBJ: ${error}`);
@@ -179,6 +224,7 @@ const ThreeJSViewer = () => {
           buffer,
           scene,
           wireframe,
+          smoothing,
           (error) => {
             setModelLoading(false);
             setErrorMessage(`Error loading GLTF: ${error}`);
@@ -215,7 +261,7 @@ const ThreeJSViewer = () => {
             {errorMessage}
           </div>
         )}
-        <div className="mx-auto w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="mx-auto w-full max-w-4xl grid grid-cols-1 md:grid-cols-3 gap-4">
           <ObjectControls
             wireframe={wireframe}
             setWireframe={setWireframe}
@@ -229,7 +275,6 @@ const ThreeJSViewer = () => {
             setShowAxes={setShowAxes}
             showHelper={showHelper}
             setShowHelper={setShowHelper}
-            scene={scene}
           />
           <LightControls
             lightX={lightX}
@@ -240,6 +285,12 @@ const ThreeJSViewer = () => {
             setLightZ={setLightZ}
             lightIntensity={lightIntensity}
             setLightIntensity={setLightIntensity}
+          />
+          <ModelControls 
+            smoothing={smoothing}
+            setSmoothing={setSmoothing}
+            smoothingIntensity={smoothingIntensity}
+            setSmoothingIntensity={setSmoothingIntensity}
           />
         </div>
         <div className="mx-auto w-full max-w-4xl">

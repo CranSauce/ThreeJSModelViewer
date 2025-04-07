@@ -66,7 +66,7 @@ const LightControls = ({
           <input
             type="range"
             min="0"
-            max="5"
+            max="10"
             step="0.1"
             value={lightIntensity}
             onChange={(e) => setLightIntensity(Number(e.target.value))}
